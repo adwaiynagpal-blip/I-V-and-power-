@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PV Bench &mdash; I-V Curve Monitor</title>
+    <meta name="description" content="ESP32 I-V Curve Monitor — load multiple CSV files and inspect each solar cell curve individually." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+    <div class="chassis">
+
+        <!-- Top bar: identity + connection -->
+        <header class="topbar">
+            <div class="brand">
+                <span class="brand-mark" aria-hidden="true">&#9673;</span>
+                <div class="brand-text">
+                    <h1>PV Bench</h1>
+                    <span class="brand-sub">I&ndash;V Curve Monitor</span>
+                </div>
+            </div>
+
+            <form id="conn-form" class="conn-form">
+                <label class="field">
+                    <span class="field-label">Device address</span>
+                    <input id="device-url" type="text" inputmode="url" placeholder="http://192.168.1.42/iv"
+                        autocomplete="off" spellcheck="false" />
+                </label>
+
+                <label class="field field-narrow">
+                    <span class="field-label">Poll (s)</span>
+                    <input id="poll-interval" type="number" min="1" max="60" value="5" />
+                </label>
+
+                <button type="submit" id="btn-connect" class="btn btn-primary">Connect</button>
+                <button type="button" id="btn-poll" class="btn btn-ghost" disabled>Start polling</button>
+            </form>
+
+            <div class="status" id="status" data-state="idle">
+                <span class="status-dot" aria-hidden="true"></span>
+                <span class="status-text">Idle</span>
+            </div>
+        </header>
+
+        <!-- Main content: sidebar | canvas | readouts -->
+        <main class="layout">
+
+            <!-- CSV Sidebar -->
+            <aside class="csv-sidebar" aria-label="CSV file list">
+                <div class="sidebar-head">
+                    <span class="sidebar-title">Curves</span>
+                    <button type="button" id="btn-clear-all" class="btn btn-link btn-sm" disabled>Clear all</button>
+                </div>
+
+                <!-- Hidden file input, triggered by the label below -->
+                <input type="file" id="file-input" accept=".csv" multiple hidden />
+
+                <label for="file-input" class="btn btn-upload" role="button" tabindex="0"
+                    onkeydown="if(event.key==='Enter'||event.key===' ')this.click()">
+                    <span class="upload-icon" aria-hidden="true">&#x2B06;</span>
+                    Upload CSV
+                </label>
+
+                <p id="csv-empty-hint" class="csv-empty-hint">No files loaded.<br>Upload a CSV or drag &amp; drop here.</p>
+
+                <ul id="csv-list" class="csv-list" role="listbox" aria-label="Loaded CSV curves"></ul>
+            </aside>
+
+            <!-- Scope panel -->
+            <section class="scope-panel" aria-label="I-V and P-V curve">
+                <div class="scope-head">
+                    <h2>Trace</h2>
+                    <span id="active-curve-label" class="active-curve-label"></span>
+                    <div class="scope-legend">
+                        <span class="legend-item"><i class="swatch swatch-iv"></i>I&ndash;V</span>
+                        <span class="legend-item"><i class="swatch swatch-mpp"></i>MPP</span>
+                    </div>
+                </div>
+                <div class="scope-screen">
+                    <canvas id="scope" width="900" height="560" role="img"
+                        aria-label="Current-voltage and power-voltage curve plot"></canvas>
+                    <p id="scope-empty" class="scope-empty">Select or upload a CSV to view its curve&hellip;</p>
+                </div>
+                <p class="scope-caption" id="sample-caption">No samples loaded</p>
+            </section>
+
+            <!-- Readout column -->
+            <aside class="readouts" aria-label="Key parameters">
+                <div class="readout-card" data-metric="isc">
+                    <span class="readout-label">I<sub>SC</sub></span>
+                    <span class="readout-value" id="val-isc">&mdash;</span>
+                    <span class="readout-unit">A</span>
+                </div>
+                <div class="readout-card" data-metric="voc">
+                    <span class="readout-label">V<sub>OC</sub></span>
+                    <span class="readout-value" id="val-voc">&mdash;</span>
+                    <span class="readout-unit">V</span>
+                </div>
+                <div class="readout-card" data-metric="pmpp">
+                    <span class="readout-label">P<sub>MPP</sub></span>
+                    <span class="readout-value" id="val-pmpp">&mdash;</span>
+                    <span class="readout-unit">W</span>
+                </div>
+                <div class="readout-card" data-metric="vmpp">
+                    <span class="readout-label">V<sub>MPP</sub></span>
+                    <span class="readout-value" id="val-vmpp">&mdash;</span>
+                    <span class="readout-unit">V</span>
+                </div>
+                <div class="readout-card" data-metric="impp">
+                    <span class="readout-label">I<sub>MPP</sub></span>
+                    <span class="readout-value" id="val-impp">&mdash;</span>
+                    <span class="readout-unit">A</span>
+                </div>
+                <div class="readout-card" data-metric="ff">
+                    <span class="readout-label">Fill Factor</span>
+                    <span class="readout-value" id="val-ff">&mdash;</span>
+                    <span class="readout-unit"></span>
+                </div>
+
+                <div class="actions">
+                    <button type="button" id="btn-fetch-once" class="btn btn-ghost btn-block" disabled>Fetch
+                        now</button>
+                    <button type="button" id="btn-export" class="btn btn-ghost btn-block" disabled>Export CSV</button>
+                    <button type="button" id="btn-demo" class="btn btn-link btn-block">Load demo data</button>
+                </div>
+            </aside>
+        </main>
+
+        <!-- Raw data -->
+        <section class="data-drawer">
+            <details>
+                <summary>Raw samples <span id="raw-count" class="raw-count"></span></summary>
+                <div class="table-wrap">
+                    <table id="data-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Voltage (V)</th>
+                                <th>Current (A)</th>
+                                <th>Power (W)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="data-table-body"></tbody>
+                    </table>
+                </div>
+            </details>
+        </section>
+
+        <p id="error-banner" class="error-banner" role="alert" hidden></p>
+
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

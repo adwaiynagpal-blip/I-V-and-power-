@@ -1,0 +1,13 @@
+{
+    "name": "pv-bench-iv-dashboard",
+    "version": "1.0.0",
+    "description": "Solar cell I-V curve dashboard that polls an ESP32 for live measurements.",
+    "private": true,
+    "scripts": {
+        "build": "tsc",
+        "serve": "npx -y serve ."
+    },
+    "devDependencies": {
+        "typescript": "^5.4.0"
+    }
+}
