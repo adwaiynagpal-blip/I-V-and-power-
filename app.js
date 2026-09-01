@@ -396,10 +396,11 @@ async function connectBle() {
         setStatus('connecting', 'Connecting…');
         els.btnConnect.disabled = true;
 
-        // Show the browser's native BLE picker — it will list all nearby
-        // devices that advertise BLE_SERVICE_UUID. No manual URL entry needed.
+        // Show ALL nearby BLE devices so the user can pick their ESP32 by name.
+        // optionalServices lets us access the GATT service after pairing.
         bleDevice = await navigator.bluetooth.requestDevice({
-            filters: [{ services: [BLE_SERVICE_UUID] }]
+            acceptAllDevices: true,
+            optionalServices: [BLE_SERVICE_UUID]
         });
         bleDevice.addEventListener('gattserverdisconnected', onBleDisconnect);
 
