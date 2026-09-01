@@ -30,7 +30,6 @@ const $ = id => {
 
 const els = {
     connForm:         $('conn-form'),
-    deviceName:       $('device-name'),
     btnConnect:       $('btn-connect'),
     btnDisconnect:    $('btn-disconnect'),
     btnExport:        $('btn-export'),
@@ -397,17 +396,11 @@ async function connectBle() {
         setStatus('connecting', 'Connecting…');
         els.btnConnect.disabled = true;
 
-        const nameFilter = els.deviceName.value.trim();
-
-        // Build request options:
-        //  • If the user provided a device name, filter by name and list
-        //    the service as optional so we can still access it after pairing.
-        //  • Otherwise filter directly by the service UUID.
-        const requestOptions = nameFilter
-            ? { filters: [{ name: nameFilter }], optionalServices: [BLE_SERVICE_UUID] }
-            : { filters: [{ services: [BLE_SERVICE_UUID] }] };
-
-        bleDevice = await navigator.bluetooth.requestDevice(requestOptions);
+        // Show the browser's native BLE picker — it will list all nearby
+        // devices that advertise BLE_SERVICE_UUID. No manual URL entry needed.
+        bleDevice = await navigator.bluetooth.requestDevice({
+            filters: [{ services: [BLE_SERVICE_UUID] }]
+        });
         bleDevice.addEventListener('gattserverdisconnected', onBleDisconnect);
 
         bleServer = await bleDevice.gatt.connect();

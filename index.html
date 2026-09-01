@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PV Bench &mdash; I-V Curve Monitor</title>
-    <meta name="description" content="ESP32 I-V Curve Monitor — connect via Bluetooth and inspect each solar cell curve individually." />
+    <meta name="description" content="ESP32 I-V Curve Monitor — connect via Bluetooth and inspect each solar cell curve." />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -29,15 +29,9 @@
             </div>
 
             <form id="conn-form" class="conn-form">
-                <label class="field">
-                    <span class="field-label">Device name <span class="field-optional">(optional)</span></span>
-                    <input id="device-name" type="text" placeholder="ESP32-IV"
-                        autocomplete="off" spellcheck="false" />
-                </label>
-
                 <button type="submit" id="btn-connect" class="btn btn-primary">
                     <span class="btn-icon" aria-hidden="true">&#x25CF;</span>
-                    Connect via BLE
+                    Connect to ESP32
                 </button>
                 <button type="button" id="btn-disconnect" class="btn btn-ghost" disabled>Disconnect</button>
             </form>
@@ -91,7 +85,7 @@
                 <div class="scope-screen">
                     <canvas id="scope" width="900" height="560" role="img"
                         aria-label="Current-voltage and power-voltage curve plot"></canvas>
-                    <p id="scope-empty" class="scope-empty">Connect to ESP32 or upload a CSV to view its curve&hellip;</p>
+                    <p id="scope-empty" class="scope-empty">Click "Connect to ESP32" or upload a CSV to view a curve&hellip;</p>
                 </div>
                 <p class="scope-caption" id="sample-caption">No samples loaded</p>
             </section>
