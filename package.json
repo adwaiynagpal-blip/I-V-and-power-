@@ -4,7 +4,6 @@
     "description": "Solar cell I-V curve dashboard that polls an ESP32 for live measurements.",
     "private": true,
     "scripts": {
-        "build": "tsc",
         "serve": "npx -y serve ."
     },
     "devDependencies": {
