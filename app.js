@@ -523,11 +523,22 @@ els.btnDemo.addEventListener('click', () => {
     setStatus('idle', 'Demo loaded');
 });
 els.fileInput.addEventListener('change', () => {
-    if (els.fileInput.files?.length > 0) {
-        handleFiles(els.fileInput.files);
-        els.fileInput.value = '';
+    const files = els.fileInput.files;
+    if (files && files.length > 0) {
+        handleFiles(files);
+        // Reset so the same file can be re-uploaded
+        try { els.fileInput.value = ''; } catch (_) {}
     }
 });
+
+// Fallback: clicking the upload label manually triggers the hidden input
+const uploadLabel = document.querySelector('label[for="file-input"]');
+if (uploadLabel) {
+    uploadLabel.addEventListener('click', e => {
+        // Prevent any parent form from intercepting
+        e.stopPropagation();
+    });
+}
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 setupDragDrop();

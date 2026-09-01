@@ -64,14 +64,14 @@
                     <button type="button" id="btn-clear-all" class="btn btn-link btn-sm" disabled>Clear all</button>
                 </div>
 
-                <!-- Hidden file input, triggered by the label below -->
-                <input type="file" id="file-input" accept=".csv" multiple hidden />
+                <!-- Hidden file input, triggered by the button below -->
+                <input type="file" id="file-input" accept=".csv" multiple style="display:none" />
 
-                <label for="file-input" class="btn btn-upload" role="button" tabindex="0"
-                    onkeydown="if(event.key==='Enter'||event.key===' ')this.click()">
+                <button type="button" class="btn btn-upload" id="btn-upload"
+                    onclick="document.getElementById('file-input').click()">
                     <span class="upload-icon" aria-hidden="true">&#x2B06;</span>
                     Upload CSV
-                </label>
+                </button>
 
                 <p id="csv-empty-hint" class="csv-empty-hint">No files loaded.<br>Upload a CSV or drag &amp; drop here.</p>
 
